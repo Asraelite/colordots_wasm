@@ -1,0 +1,11 @@
+[package]
+name = "wasm_force"
+version = "0.0.1"
+authors = [
+	"Markus Scully <markusscully@gmail.com>",
+	]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
