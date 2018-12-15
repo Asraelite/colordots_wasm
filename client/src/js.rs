@@ -10,6 +10,7 @@ extern "C" {
 	fn js_move_to(x: f64, y: f64);
 	fn js_line_to(x: f64, y: f64);
 	fn js_stroke();
+	fn js_random() -> f64;
 }
 
 use std::borrow::Borrow;
@@ -51,4 +52,8 @@ pub fn canvas_line_to(x: f64, y: f64) {
 
 pub fn canvas_stroke() {
 	unsafe { js_stroke() }
+}
+
+pub fn math_random() -> f64 {
+	unsafe { js_random() }
 }

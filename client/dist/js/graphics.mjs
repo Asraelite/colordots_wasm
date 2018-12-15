@@ -1,17 +1,15 @@
 let canvas, context, images;
 
-const WIDTH = 700;
-const HEIGHT = 700;
-
 export function init() {
 	canvas = document.getElementsByTagName('canvas')[0];
 	context = canvas.getContext('2d');
 
-	context.lineJoin = 'bevel';
-	context.miterLimit = 1;
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+}
 
-	canvas.width = WIDTH;
-	canvas.height = HEIGHT;
+export function getCanvasSize() {
+	return [canvas.width, canvas.height];
 }
 
 export function setFill(r, g, b) {

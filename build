@@ -3,4 +3,4 @@
 cd client
 cargo build --target wasm32-unknown-unknown --release
 mv "target/wasm32-unknown-unknown/release/wasm_force.wasm" dist/main.wasm
-#wasm-gc dist/main.wasm
+wasm-gc dist/main.wasm

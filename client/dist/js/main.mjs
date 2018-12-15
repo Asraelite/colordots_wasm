@@ -6,14 +6,16 @@ let t = 0;
 window.addEventListener('load', init);
 
 async function init() {
-	await wasm.init();
 	graphics.init();
+
+	let success = await wasm.init(...graphics.getCanvasSize());
+	if (!success) return;
 
 	tick();
 }
 
 function tick() {
 	graphics.clear();
-	wasm.tick();
-	//requestAnimationFrame(tick);
+	if (!wasm.tick()) return;
+	requestAnimationFrame(tick);
 }

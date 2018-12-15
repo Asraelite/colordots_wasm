@@ -1,5 +1,34 @@
-use js::*;
 use super::GlobalState;
+use js;
+
+struct Color {
+	red: u8,
+	green: u8,
+	blue: u8,
+}
+
+impl Color {
+	pub fn new(red: u8, green: u8, blue: u8) -> Self {
+		Self { red, green, blue }
+	}
+}
 
 pub fn render(state: &GlobalState) {
+	let (canvas_width, canvas_height) = state.world.size.as_tuple();
+	js::canvas_set_fill(0, 0, 0);
+	js::canvas_fill_rect(0.0, 0.0, canvas_width as f64, canvas_height as f64);
+
+	for particle in state.world.particles.iter() {
+		let (pos_x, pos_y) = particle.position.as_tuple();
+		let render_size = 1.0;
+		let color = Color::new(255, 255, 255);
+
+		js::canvas_set_fill(color.red, color.green, color.blue);
+		js::canvas_fill_rect(
+			(pos_x - render_size / 2.0) as f64,
+			(pos_y - render_size / 2.0) as f64,
+			render_size as f64,
+			render_size as f64,
+		);
+	}
 }

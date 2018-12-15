@@ -5,7 +5,7 @@ let rustExports = {};
 
 const WASM_FILE = 'main.wasm';
 
-export async function init() {
+export async function init(...args) {
 	let imports = {
 		env: rustExports
 	};
@@ -15,13 +15,28 @@ export async function init() {
 
 	window.mod = mod;
 
-	//mod.init();
+	try {
+		mod.init(...args);
+	} catch(_) {
+		wasmError();
+		return false;
+	}
 
 	return mod;
 };
 
 export function tick() {
-	mod.tick();
+	try {
+		mod.tick();
+		return true;
+	} catch(_) {
+		wasmError();
+		return false;
+	}
+}
+
+function wasmError() {
+	console.error('Error in WASM');
 }
 
 // Functions callable from Rust.
@@ -34,7 +49,7 @@ rustExports.js_log = (pointer, length) => {
 rustExports.js_set_fill = graphics.setFill;
 rustExports.js_set_stroke = graphics.setStroke;
 rustExports.js_fill_rect = graphics.fillRect;
-//rustExports.js_fill_circle = graphics.fillCircle;
+rustExports.js_fill_circle = graphics.fillCircle;
 rustExports.js_begin_path = graphics.beginPath;
 rustExports.js_move_to = graphics.moveTo;
 rustExports.js_line_to = graphics.lineTo;
@@ -44,6 +59,7 @@ rustExports.sin = Math.sin;
 rustExports.cos = Math.cos;
 rustExports.sqrt = Math.sqrt;
 rustExports.atan2 = Math.atan2;
+rustExports.js_random = Math.random;
 rustExports.fmod = (num, div) => num % div;
 
 // Helper functions
