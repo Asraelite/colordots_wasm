@@ -19,8 +19,8 @@ const FRICTION_FORCE: FloatSize = 0.05;
 const FRICTION_MAX_RADIUS: FloatSize = 5.0;
 const EDGE_RESTITUTION: FloatSize = 0.8;
 const COLOR_SPREAD: FloatSize = 0.02;
-const COLOR_CHANGE_FREQUENCY: FloatSize = 0.001;
-const COLOR_CHANGE_AMOUNT: FloatSize = 10.0;
+const COLOR_CHANGE_FREQUENCY: FloatSize = 0.0001;
+const COLOR_CHANGE_AMOUNT: FloatSize = 100.0;
 const PARTICLE_COUNT: u32 = 800;
 
 impl Vec2 {
