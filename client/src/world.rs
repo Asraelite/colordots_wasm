@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use js;
 
 pub type FloatSize = f32;
@@ -16,6 +18,9 @@ const EM_MIN_RADIUS: FloatSize = 2.0;
 const FRICTION_FORCE: FloatSize = 0.05;
 const FRICTION_MAX_RADIUS: FloatSize = 5.0;
 const EDGE_RESTITUTION: FloatSize = 0.8;
+const COLOR_SPREAD: FloatSize = 0.02;
+const COLOR_CHANGE_FREQUENCY: FloatSize = 0.001;
+const COLOR_CHANGE_AMOUNT: FloatSize = 10.0;
 const PARTICLE_COUNT: u32 = 800;
 
 impl Vec2 {
@@ -156,6 +161,7 @@ pub struct Particle {
 	bounds: Vec2,
 	velocity: Vec2,
 	next_velocity: Vec2,
+	pub color: FloatSize,
 	pub heat: FloatSize,
 }
 
@@ -163,12 +169,14 @@ impl Particle {
 	pub fn new_random(bounds: &Vec2) -> Self {
 		let rand_pos_x = (js::math_random() as FloatSize) * bounds.x;
 		let rand_pos_y = (js::math_random() as FloatSize) * bounds.y;
+		let color = js::math_random() as FloatSize;
 
 		Particle {
 			position: Vec2::new(rand_pos_x, rand_pos_y),
 			bounds: *bounds,
 			velocity: Vec2::new(0.0, 0.0),
 			next_velocity: Vec2::new(0.0, 0.0),
+			color: color,
 			heat: 0.0,
 		}
 	}
@@ -191,6 +199,10 @@ impl Particle {
 		if self.position.y > self.bounds.y {
 			self.next_velocity.y *= -EDGE_RESTITUTION;
 			self.position.y = self.bounds.y;
+		}
+
+		if ((js::math_random() as FloatSize) < COLOR_CHANGE_FREQUENCY) {
+			self.color += (js::math_random() as FloatSize - 0.5) * COLOR_CHANGE_AMOUNT;
 		}
 
 		self.velocity = self.next_velocity;
@@ -237,5 +249,9 @@ impl Particle {
 		let balance = (other_particle.velocity - self.velocity) * FRICTION_FORCE;
 		self.change_velocity(balance);
 		other_particle.change_velocity(-balance);
+
+		let color_diff = (other_particle.color - self.color) * COLOR_SPREAD;
+		self.color += color_diff;
+		other_particle.color -= color_diff;
 	}
 }

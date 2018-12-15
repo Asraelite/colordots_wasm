@@ -12,13 +12,18 @@ export function getCanvasSize() {
 	return [canvas.width, canvas.height];
 }
 
-export function setFill(r, g, b) {
-	context.fillStyle = `rgb(${r},${g},${b})`;
+export function setFill(colorType, r, g, b) {
+	if (colorType == 0) {
+		context.fillStyle = `rgb(${r},${g},${b})`;
+	} else if (colorType == 1) {
+		context.fillStyle = `hsl(${r},${g}%,${b}%)`;
+	}
 }
 
-export function setStroke(r, g, b, width) {
+export function setStroke(colorType, r, g, b, width) {
 	if (width > 0) context.lineWidth = width;
-	context.strokeStyle = `rgb(${r},${g},${b})`;
+	//let prefix = ['rgb', 'hsl'][colorType];
+	context.strokeStyle = `$rgb(${r},${g},${b})`;
 }
 
 export function fillRect(x, y, w, h) {

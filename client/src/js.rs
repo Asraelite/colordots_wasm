@@ -2,8 +2,8 @@
 
 extern "C" {
 	fn js_log(str_ptr: *const u8, length: u32);
-	fn js_set_fill(r: u8, g: u8, b: u8);
-	fn js_set_stroke(r: u8, g: u8, b: u8, width: f64);
+	fn js_set_fill(color_format: u8, r: u16, g: u8, b: u8);
+	fn js_set_stroke(color_format: u8, r: u8, g: u8, b: u8, width: f64);
 	fn js_fill_rect(x: f64, y: f64, w: f64, h: f64);
 	fn js_fill_circle(x: f64, y: f64, r: f64);
 	fn js_begin_path();
@@ -22,12 +22,16 @@ pub fn console_log<T: Borrow<str>>(message: T) {
 	}
 }
 
-pub fn canvas_set_fill(r: u8, g: u8, b: u8) {
-	unsafe { js_set_fill(r, g, b) }
+pub fn canvas_set_fill_rgb(r: u8, g: u8, b: u8) {
+	unsafe { js_set_fill(0, r as u16, g, b) }
+}
+
+pub fn canvas_set_fill_hsl(h: u16, s: u8, l: u8) {
+	unsafe { js_set_fill(1, h, s, l) }
 }
 
 pub fn canvas_set_stroke(r: u8, g: u8, b: u8, width: f64) {
-	unsafe { js_set_stroke(r, g, b, width) }
+	unsafe { js_set_stroke(0, r, g, b, width) }
 }
 
 pub fn canvas_fill_rect(x: f64, y: f64, w: f64, h: f64) {
