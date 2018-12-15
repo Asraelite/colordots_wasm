@@ -15,6 +15,7 @@ const EM_MAX_RADIUS: FloatSize = 3.0;
 const EM_MIN_RADIUS: FloatSize = 1.0;
 const FRICTION_FORCE: FloatSize = 0.005;
 const FRICTION_MAX_RADIUS: FloatSize = 3.0;
+const EDGE_RESTITUTION: FloatSize = 0.8;
 const PARTICLE_COUNT: u32 = 350;
 
 impl Vec2 {
@@ -87,6 +88,13 @@ impl std::ops::AddAssign for Vec2 {
 	}
 }
 
+impl std::ops::MulAssign<FloatSize> for Vec2 {
+	fn mul_assign(&mut self, rhs: FloatSize) {
+		self.x *= rhs;
+		self.y *= rhs;
+	}
+}
+
 impl std::ops::Sub for Vec2 {
 	type Output = Self;
 
@@ -141,6 +149,7 @@ impl World {
 
 pub struct Particle {
 	pub position: Vec2,
+	bounds: Vec2,
 	velocity: Vec2,
 	next_velocity: Vec2,
 	pub heat: FloatSize,
@@ -153,6 +162,7 @@ impl Particle {
 
 		Particle {
 			position: Vec2::new(rand_pos_x, rand_pos_y),
+			bounds: *bounds,
 			velocity: Vec2::new(0.0, 0.0),
 			next_velocity: Vec2::new(0.0, 0.0),
 			heat: 0.0,
@@ -160,9 +170,26 @@ impl Particle {
 	}
 
 	pub fn update(&mut self) {
+		self.position += self.next_velocity;
+
+		if self.position.x < 0.0 {
+			self.next_velocity.x *= -EDGE_RESTITUTION;
+			self.position.x = 0.0;
+		}
+		if self.position.y < 0.0 {
+			self.next_velocity.y *= -EDGE_RESTITUTION;
+			self.position.y = 0.0;
+		}
+		if self.position.x > self.bounds.x {
+			self.next_velocity.x *= -EDGE_RESTITUTION;
+			self.position.y = self.bounds.x;
+		}
+		if self.position.y > self.bounds.y {
+			self.next_velocity.y *= -EDGE_RESTITUTION;
+			self.position.y = self.bounds.y;
+		}
+
 		self.velocity = self.next_velocity;
-		self.position += self.velocity;
-		self.velocity = self.velocity * 0.98;
 	}
 
 	pub fn change_velocity(&mut self, diff: Vec2) {
