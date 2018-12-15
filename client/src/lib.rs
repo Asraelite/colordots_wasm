@@ -4,8 +4,6 @@
 use std::cell::RefCell;
 use std::panic;
 
-use backtrace;
-
 mod graphics;
 mod js;
 mod world;
@@ -49,7 +47,6 @@ extern "C" fn tick() {
 
 fn set_panic_hook() {
 	panic::set_hook(Box::new(|panic_info| {
-		let backtrace = backtrace::Backtrace::new();
 		let payload = panic_info.payload();
 
 		let message = if let Some(message) = payload.downcast_ref::<String>() {
@@ -67,8 +64,8 @@ fn set_panic_hook() {
 		};
 
 		js::console_log(format!(
-			"Panic: {:?}\n\tat {}\n{:?}",
-			message, location_string, backtrace
+			"Panic: {:?}\n\tat {}\n",
+			message, location_string
 		));
 	}));
 }
