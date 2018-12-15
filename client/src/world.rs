@@ -8,8 +8,13 @@ pub struct Vec2 {
 	pub y: FloatSize,
 }
 
-const GRAVITATIONAL_FORCE: FloatSize = 1.0;
-const GRAVITY_MIN_RADIUS: FloatSize = 3.0;
+const GRAVITATIONAL_FORCE: FloatSize = 0.5;
+const GRAVITY_MIN_RADIUS: FloatSize = 2.0;
+const EM_FORCE: FloatSize = 0.3;
+const EM_MAX_RADIUS: FloatSize = 3.0;
+const EM_MIN_RADIUS: FloatSize = 1.0;
+const FRICTION_FORCE: FloatSize = 0.005;
+const FRICTION_MAX_RADIUS: FloatSize = 3.0;
 const PARTICLE_COUNT: u32 = 350;
 
 impl Vec2 {
@@ -19,9 +24,9 @@ impl Vec2 {
 		Self { x, y }
 	}
 
-	pub fn from_polar(angle: FloatSize, magnitude: FloatSize) -> Self {
-		Self::new(angle.cos() * magnitude, angle.sin() * magnitude)
-	}
+	// pub fn from_polar(angle: FloatSize, magnitude: FloatSize) -> Self {
+	// 	Self::new(angle.cos() * magnitude, angle.sin() * magnitude)
+	// }
 
 	pub fn as_tuple(self) -> (FloatSize, FloatSize) {
 		(self.x, self.y)
@@ -31,13 +36,25 @@ impl Vec2 {
 		(self - other.into()).magnitude()
 	}
 
+	pub fn sq_distance_to(self, other: Self) -> FloatSize {
+		(self - other.into()).sq_magnitude()
+	}
+
 	pub fn angle_to(self, other: Self) -> FloatSize {
 		let (diff_x, diff_y) = (self - other).as_tuple();
 		diff_y.atan2(diff_x)
 	}
 
+	pub fn normalize(self, magnitude: FloatSize) -> Self {
+		self * (magnitude / self.magnitude())
+	}
+
 	pub fn magnitude(&self) -> FloatSize {
-		return (self.x.powi(2) + self.y.powi(2)).sqrt();
+		self.sq_magnitude().sqrt()
+	}
+
+	fn sq_magnitude(&self) -> FloatSize {
+		(self.x.powi(2) + self.y.powi(2))
 	}
 }
 
@@ -155,16 +172,39 @@ impl Particle {
 	pub fn interact(&mut self, others: &mut [Particle]) {
 		for other_particle in others {
 			self.simulate_gravity(other_particle);
+			self.simulate_em(other_particle);
+			self.simulate_friction(other_particle);
 		}
 	}
 
-	pub fn simulate_gravity(&mut self, other_particle: &mut Particle) {
-		let distance = self.position.distance_to(other_particle.position);
-		let distance = distance.max(GRAVITY_MIN_RADIUS);
-		let angle = self.position.angle_to(other_particle.position);
-		let force = GRAVITATIONAL_FORCE / distance.powi(2);
-		let vel_change = Vec2::from_polar(angle, force);
-		self.change_velocity(-vel_change);
-		other_particle.change_velocity(vel_change);
+	fn simulate_gravity(&mut self, other_particle: &mut Particle) {
+		let sq_distance = self.position.sq_distance_to(other_particle.position);
+		let sq_distance = sq_distance.max(GRAVITY_MIN_RADIUS.powi(2));
+		let force_mag = GRAVITATIONAL_FORCE / sq_distance;
+		let force_vector = (other_particle.position - self.position).normalize(force_mag);
+		self.change_velocity(force_vector);
+		other_particle.change_velocity(-force_vector);
+	}
+
+	fn simulate_em(&mut self, other_particle: &mut Particle) {
+		let sq_distance = self.position.sq_distance_to(other_particle.position);
+		if sq_distance > EM_MAX_RADIUS.powi(2) {
+			return;
+		}
+		let sq_distance = sq_distance.max(EM_MIN_RADIUS.powi(2));
+		let force_mag = EM_FORCE / sq_distance;
+		let force_vector = (other_particle.position - self.position).normalize(force_mag);
+		self.change_velocity(-force_vector);
+		other_particle.change_velocity(force_vector);
+	}
+
+	fn simulate_friction(&mut self, other_particle: &mut Particle) {
+		let sq_distance = self.position.sq_distance_to(other_particle.position);
+		if sq_distance > FRICTION_MAX_RADIUS.powi(2) {
+			return;
+		};
+		let balance = (other_particle.velocity - self.velocity) * FRICTION_FORCE;
+		self.change_velocity(balance);
+		other_particle.change_velocity(-balance);
 	}
 }
