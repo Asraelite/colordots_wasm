@@ -47,7 +47,11 @@ impl Vec2 {
 	}
 
 	pub fn normalize(self, magnitude: FloatSize) -> Self {
-		self * (magnitude / self.magnitude())
+		if self.magnitude() == 0.0 {
+			self
+		} else {
+			self * (magnitude / self.magnitude())
+		}
 	}
 
 	pub fn magnitude(&self) -> FloatSize {
@@ -218,7 +222,7 @@ impl Particle {
 		if sq_distance > EM_MAX_RADIUS.powi(2) {
 			return;
 		}
-		let sq_distance = sq_distance.max(EM_MIN_RADIUS.powi(2));
+		//let sq_distance = sq_distance.max(EM_MIN_RADIUS.powi(2));
 		let force_mag = EM_FORCE;// / sq_distance;
 		let force_vector = (other_particle.position - self.position).normalize(force_mag);
 		self.change_velocity(-force_vector);
