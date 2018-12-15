@@ -10,13 +10,13 @@ pub struct Vec2 {
 
 const GRAVITATIONAL_FORCE: FloatSize = 0.5;
 const GRAVITY_MIN_RADIUS: FloatSize = 2.0;
-const EM_FORCE: FloatSize = 0.3;
-const EM_MAX_RADIUS: FloatSize = 3.0;
-const EM_MIN_RADIUS: FloatSize = 1.0;
-const FRICTION_FORCE: FloatSize = 0.005;
-const FRICTION_MAX_RADIUS: FloatSize = 3.0;
+const EM_FORCE: FloatSize = 0.15;
+const EM_MAX_RADIUS: FloatSize = 4.0;
+const EM_MIN_RADIUS: FloatSize = 2.0;
+const FRICTION_FORCE: FloatSize = 0.05;
+const FRICTION_MAX_RADIUS: FloatSize = 5.0;
 const EDGE_RESTITUTION: FloatSize = 0.8;
-const PARTICLE_COUNT: u32 = 350;
+const PARTICLE_COUNT: u32 = 800;
 
 impl Vec2 {
 	pub fn new(x: FloatSize, y: FloatSize) -> Self {
@@ -182,7 +182,7 @@ impl Particle {
 		}
 		if self.position.x > self.bounds.x {
 			self.next_velocity.x *= -EDGE_RESTITUTION;
-			self.position.y = self.bounds.x;
+			self.position.x = self.bounds.x;
 		}
 		if self.position.y > self.bounds.y {
 			self.next_velocity.y *= -EDGE_RESTITUTION;
@@ -219,7 +219,7 @@ impl Particle {
 			return;
 		}
 		let sq_distance = sq_distance.max(EM_MIN_RADIUS.powi(2));
-		let force_mag = EM_FORCE / sq_distance;
+		let force_mag = EM_FORCE;// / sq_distance;
 		let force_vector = (other_particle.position - self.position).normalize(force_mag);
 		self.change_velocity(-force_vector);
 		other_particle.change_velocity(force_vector);
