@@ -4,11 +4,13 @@
 use std::cell::RefCell;
 use std::panic;
 
+use backtrace;
+
 mod graphics;
 mod js;
 mod world;
 
-use world::{FloatSize, World};
+use crate::world::{FloatSize, World};
 
 thread_local! {
 	static STATE: RefCell<GlobalState> = RefCell::new(GlobalState::new());
@@ -45,8 +47,9 @@ extern "C" fn tick() {
 	});
 }
 
-fn set_panic_hook<'a>() {
+fn set_panic_hook() {
 	panic::set_hook(Box::new(|panic_info| {
+		let backtrace = backtrace::Backtrace::new();
 		let payload = panic_info.payload();
 
 		let message = if let Some(message) = payload.downcast_ref::<String>() {
@@ -64,9 +67,8 @@ fn set_panic_hook<'a>() {
 		};
 
 		js::console_log(format!(
-			"Panic: {:?}\n\tat {}",
-			message,
-			location_string
+			"Panic: {:?}\n\tat {}\n{:?}",
+			message, location_string, backtrace
 		));
 	}));
 }

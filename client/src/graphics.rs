@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use super::GlobalState;
-use js;
+use crate::js;
 
 struct Color {
 	red: u8,

@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use js;
+use crate::js;
 
 pub type FloatSize = f32;
 
@@ -132,8 +132,9 @@ impl World {
 		self.size.x = width;
 		self.size.y = height;
 
-		for _ in 0..PARTICLE_COUNT {
+		for i in 0..PARTICLE_COUNT {
 			self.create_particle();
+			self.particles.last_mut().unwrap().change_velocity(Vec2::new(i as f32, i as f32));
 		}
 	}
 
@@ -170,6 +171,8 @@ impl Particle {
 		let rand_pos_x = (js::math_random() as FloatSize) * bounds.x;
 		let rand_pos_y = (js::math_random() as FloatSize) * bounds.y;
 		let color = js::math_random() as FloatSize;
+		let rand_pos_x = 0.0;
+		let rand_pos_y = 0.0;
 
 		Particle {
 			position: Vec2::new(rand_pos_x, rand_pos_y),
@@ -183,6 +186,9 @@ impl Particle {
 
 	pub fn update(&mut self) {
 		self.position += self.next_velocity;
+
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 
 		if self.position.x < 0.0 {
 			self.next_velocity.x *= -EDGE_RESTITUTION;
@@ -200,33 +206,55 @@ impl Particle {
 			self.next_velocity.y *= -EDGE_RESTITUTION;
 			self.position.y = self.bounds.y;
 		}
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 
 		if ((js::math_random() as FloatSize) < COLOR_CHANGE_FREQUENCY) {
-			self.color += (js::math_random() as FloatSize - 0.5) * COLOR_CHANGE_AMOUNT;
+			self.color += (js::math_random() as FloatSize - 0.3) * COLOR_CHANGE_AMOUNT;
 		}
 
 		self.velocity = self.next_velocity;
 	}
 
 	pub fn change_velocity(&mut self, diff: Vec2) {
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 		self.next_velocity += diff;
+		//assert!(!self.next_velocity.x.is_nan());
+		//assert!(!self.next_velocity.y.is_nan());
 	}
 
 	pub fn interact(&mut self, others: &mut [Particle]) {
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 		for other_particle in others {
+			assert!(!self.next_velocity.x.is_nan());
+			assert!(!self.next_velocity.y.is_nan());
 			self.simulate_gravity(other_particle);
+			assert!(!self.next_velocity.x.is_nan());
+			assert!(!self.next_velocity.y.is_nan());
 			self.simulate_em(other_particle);
 			self.simulate_friction(other_particle);
 		}
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 	}
 
 	fn simulate_gravity(&mut self, other_particle: &mut Particle) {
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 		let sq_distance = self.position.sq_distance_to(other_particle.position);
 		let sq_distance = sq_distance.max(GRAVITY_MIN_RADIUS.powi(2));
 		let force_mag = GRAVITATIONAL_FORCE / sq_distance;
 		let force_vector = (other_particle.position - self.position).normalize(force_mag);
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 		self.change_velocity(force_vector);
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 		other_particle.change_velocity(-force_vector);
+		assert!(!self.next_velocity.x.is_nan());
+		assert!(!self.next_velocity.y.is_nan());
 	}
 
 	fn simulate_em(&mut self, other_particle: &mut Particle) {
@@ -234,8 +262,8 @@ impl Particle {
 		if sq_distance > EM_MAX_RADIUS.powi(2) {
 			return;
 		}
-		//let sq_distance = sq_distance.max(EM_MIN_RADIUS.powi(2));
-		let force_mag = EM_FORCE;// / sq_distance;
+		let sq_distance = sq_distance.max(EM_MIN_RADIUS.powi(2));
+		let force_mag = EM_FORCE;// * 40.0 / sq_distance.powi(2);
 		let force_vector = (other_particle.position - self.position).normalize(force_mag);
 		self.change_velocity(-force_vector);
 		other_particle.change_velocity(force_vector);

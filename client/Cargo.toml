@@ -4,8 +4,11 @@ version = "0.0.1"
 authors = [
 	"Markus Scully <markusscully@gmail.com>",
 	]
+edition = "2018"
+readme = "README.md"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
+backtrace = "0.3.13"
