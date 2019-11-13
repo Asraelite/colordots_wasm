@@ -19,7 +19,7 @@ const FRICTION_FORCE: FloatSize = 0.05;
 const FRICTION_MAX_RADIUS: FloatSize = 5.0;
 const EDGE_RESTITUTION: FloatSize = 0.9;
 const COLOR_SPREAD: FloatSize = 0.02;
-const COLOR_CHANGE_FREQUENCY: FloatSize = 0.0001;
+const COLOR_CHANGE_FREQUENCY: FloatSize = 0.00001;
 const COLOR_CHANGE_AMOUNT: FloatSize = 100.0;
 const PARTICLE_COUNT: u32 = 800;
 
@@ -218,7 +218,7 @@ impl Particle {
 	pub fn interact(&mut self, others: &mut [Particle]) {
 		for other_particle in others {
 			self.simulate_gravity(other_particle);
-			self.simulate_em(other_particle);
+			self.simulate_nuclear(other_particle);
 			self.simulate_friction(other_particle);
 		}
 	}
@@ -232,7 +232,25 @@ impl Particle {
 		other_particle.change_velocity(-force_vector);
 	}
 
-	fn simulate_em(&mut self, other_particle: &mut Particle) {
+	fn simulate_nuclear(&mut self, other_particle: &mut Particle) {
+		/*
+		let forces = [
+			-1.0, -0.7, -0.4, -0.2, -0.1, -0.05, 0.0, 0.0, 0.0, 0.2, 0.1
+		];
+
+		let distance = self.position.distance_to(other_particle.position);
+		let force_index = (distance / 3.0).round() as usize;
+		if (force_index >= forces.len()) {
+			return;
+		}
+
+		let force_mag = forces[force_index];
+		let force_vector = (other_particle.position - self.position).normalize(force_mag);
+		self.change_velocity(force_vector);
+		other_particle.change_velocity(-force_vector);
+		*/
+
+
 		let sq_distance = self.position.sq_distance_to(other_particle.position);
 		if sq_distance > EM_MAX_RADIUS.powi(2) {
 			return;
@@ -242,6 +260,9 @@ impl Particle {
 		let force_vector = (other_particle.position - self.position).normalize(force_mag);
 		self.change_velocity(-force_vector);
 		other_particle.change_velocity(force_vector);
+
+
+		// friction
 	}
 
 	fn simulate_friction(&mut self, other_particle: &mut Particle) {
