@@ -1,5 +1,5 @@
 [package]
-name = "wasm_force"
+name = "colordots_wasm"
 version = "0.0.1"
 authors = [
 	"Markus Scully <markusscully@gmail.com>",

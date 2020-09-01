@@ -1,12 +1,12 @@
-# WASM Force
+# Colordots WASM
 
-Particle simulator.
+Gravity-based particle simulator.
 
 ### Setup
 
 Install Rustup with your package manager, then get the nightly wasm32-unknown-unknown target.
 
-`rustup toolchain install nightly`  
+`rustup toolchain install nightly`
 `rustup target add wasm32-unknown-unknown --toolchain nightly`
 
 Also install `wasm-gc` so smaller WASM binaries can be generated.

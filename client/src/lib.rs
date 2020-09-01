@@ -57,10 +57,9 @@ fn set_panic_hook() {
 			"Unknown panic payload type"
 		};
 
-		let location_string = if let Some(location) = panic_info.location() {
-			format!("{} {}", location.file(), location.line())
-		} else {
-			String::from("Unknown location")
+		let location_string = match panic_info.location() {
+			Some(loc) => format!("{} {}", loc.file(), loc.line()),
+			None => String::from("Unknown location"),
 		};
 
 		js::console_log(format!(

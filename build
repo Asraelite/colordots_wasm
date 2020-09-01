@@ -2,5 +2,5 @@
 
 cd client
 export RUST_BACKTRACE=1 && cargo build --target wasm32-unknown-unknown --release
-mv "target/wasm32-unknown-unknown/release/wasm_force.wasm" dist/main.wasm
+mv "target/wasm32-unknown-unknown/release/colordots_wasm.wasm" dist/main.wasm
 wasm-gc dist/main.wasm
